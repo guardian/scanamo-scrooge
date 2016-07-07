@@ -1,4 +1,4 @@
-ScanamoScrooge [![Build Status](https://travis-ci.org/guardian/scanamo-scrooge.svg?branch=master)](https://travis-ci.org/guardian/scanamo-scrooge)
+ScanamoScrooge [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.gu/scanamo-scrooge_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.gu/scanamo-scrooge_2.11) [![Build Status](https://travis-ci.org/guardian/scanamo-scrooge.svg?branch=master)](https://travis-ci.org/guardian/scanamo-scrooge)
 ==============
 
 Like [Scanamo](https://github.com/guardian/scanamo) for interacting with DynamoDB and use
@@ -7,6 +7,16 @@ Then you'll love ScanamoScrooge!
 
 ScanamoScrooge provides automatic derivation of [DynamoFormat](https://guardian.github.io/scanamo/latest/api/#com.gu.scanamo.DynamoFormat)
 type classes for Scrooge generated classes based on Thrift `struct` and `enum` types.
+
+Installation
+------------
+
+```scala
+libraryDependencies ++= Seq(
+  "com.gu" %% "scanamo-scrooge" % "0.1.1"
+)sbt
+
+```
 
 Usage
 -----
