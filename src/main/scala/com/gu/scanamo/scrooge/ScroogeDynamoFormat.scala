@@ -25,7 +25,7 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
 
     q"""
       com.gu.scanamo.DynamoFormat.xmap[$A, String](
-        (x) => _root_.cats.data.Xor.fromOption($valueOf(x), com.gu.scanamo.error.TypeCoercionError(throw new IllegalArgumentException(x + " is not a valid " + $typeName))))(
+        (x) => _root_.cats.data.Xor.fromOption($valueOf(x), com.gu.scanamo.error.TypeCoercionError(new IllegalArgumentException(x + " is not a valid " + $typeName))))(
         _.name)
     """
   }

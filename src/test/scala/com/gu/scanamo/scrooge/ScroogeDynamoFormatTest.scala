@@ -1,9 +1,11 @@
 package com.gu.scanamo.scrooge
 
 import cats.data.Xor
+import com.amazonaws.services.dynamodbv2.model.AttributeValue
 import com.gu.contentatom.thrift.{ChangeRecord, User}
 import com.gu.contentatom.thrift.atom.media.AssetType
 import com.gu.scanamo.DynamoFormat
+import com.gu.scanamo.error.TypeCoercionError
 import org.scalatest.{FunSuite, Matchers}
 
 class ScroogeDynamoFormatTest extends FunSuite with Matchers {
@@ -12,6 +14,7 @@ class ScroogeDynamoFormatTest extends FunSuite with Matchers {
     val format = ScroogeDynamoFormat.scroogeScanamoEnumFormat[AssetType]
     format.read(format.write(AssetType.Audio)) should be(Xor.right(AssetType.Audio))
     format.read(format.write(AssetType.Video)) should be(Xor.right(AssetType.Video))
+    format.read(new AttributeValue().withS("Spleurk")).isLeft should be(true)
   }
 
   test("testScroogeScanamoStructFormat") {
