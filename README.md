@@ -1,4 +1,4 @@
-ScanamoScrooge
+ScanamoScrooge [![Build Status](https://travis-ci.org/guardian/scanamo-scrooge.svg?branch=master)](https://travis-ci.org/guardian/scanamo-scrooge)
 ==============
 
 Like [Scanamo](https://github.com/guardian/scanamo) for interacting with DynamoDB and use
