@@ -16,6 +16,11 @@ libraryDependencies ++= Seq(
   "com.gu" %% "content-atom-model" % "1.0.1" % Test
 )
 
+doctestMarkdownEnabled := true
+doctestDecodeHtmlEntities := true
+doctestWithDependencies := false
+doctestTestFramework := DoctestTestFramework.ScalaTest
+
 homepage := Some(url("https://github.com/guardian/scanamo-scrooge"))
 licenses := Seq("Apache V2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
 publishMavenStyle := true
