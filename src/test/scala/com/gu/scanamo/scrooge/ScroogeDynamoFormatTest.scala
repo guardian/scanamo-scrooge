@@ -2,7 +2,7 @@ package com.gu.scanamo.scrooge
 
 import cats.data.Xor
 import com.amazonaws.services.dynamodbv2.model.AttributeValue
-import com.gu.contentatom.thrift.{ChangeRecord, User}
+import com.gu.contentatom.thrift.{ChangeRecord, User, Flags}
 import com.gu.contentatom.thrift.atom.media.AssetType
 import com.gu.scanamo.DynamoFormat
 import com.gu.scanamo.error.TypeCoercionError
@@ -22,4 +22,11 @@ class ScroogeDynamoFormatTest extends FunSuite with Matchers {
     val changeRecord = ChangeRecord(1L, Some(User("email", Some("f"), None)))
     DynamoFormat[ChangeRecord].read(DynamoFormat[ChangeRecord].write(changeRecord)) should be(Xor.right(changeRecord))
   }
+
+  test("testScroogeScanamoStructFormat for struct with one member") {
+    import ScroogeDynamoFormat._
+    val flags = Flags(Some(true))
+    DynamoFormat[Flags].read(DynamoFormat[Flags].write(flags)) should be(Xor.right(flags))
+  }
+
 }
