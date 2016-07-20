@@ -5,7 +5,6 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue
 import com.gu.contentatom.thrift.{ChangeRecord, User}
 import com.gu.contentatom.thrift.atom.media.AssetType
 import com.gu.scanamo.DynamoFormat
-import com.gu.scanamo.error.TypeCoercionError
 import org.scalatest.{FunSuite, Matchers}
 
 class ScroogeDynamoFormatTest extends FunSuite with Matchers {

@@ -44,13 +44,21 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
       val fresh = c.freshName(name).toTermName
       val termName = name.toTermName
 
-      // Note the use of shapeless `Lazy` to work around a problem with diverging implicits.
-      // If you try to summon an implicit for heavily nested type, e.g. `Decoder[Option[Seq[String]]]` then the compiler sometimes gives up.
-      // Wrapping with `Lazy` fixes this issue.
+      val formatForType = appliedType(weakTypeOf[DynamoFormat[_]].typeConstructor, tpe)
+      val implicitFormat = c.inferImplicitValue(formatForType)
+      val formatWithFallback= if (implicitFormat.nonEmpty) {
+        implicitFormat
+      } else {
+        // Note the use of shapeless `Lazy` to work around a problem with diverging implicits.
+        // If you try to summon an implicit for heavily nested type, e.g. `DynamoFormat[Option[List[String]]]` then the compiler sometimes gives up.
+        // Wrapping with `Lazy` fixes this issue.
+        q"""_root_.scala.Predef.implicitly[_root_.shapeless.Lazy[_root_.com.gu.scanamo.DynamoFormat[$tpe]]].value"""
+      }
+
       val reader =
         q"""
           val $fresh: cats.data.Validated[com.gu.scanamo.error.InvalidPropertiesError, $tpe] = {
-            val format = _root_.scala.Predef.implicitly[_root_.shapeless.Lazy[_root_.com.gu.scanamo.DynamoFormat[$tpe]]].value
+            val format = $formatWithFallback
             val possibleValue = collection.convert.WrapAsScala.mapAsScalaMap(av.getM).get(${termName.toString}).map(format.read).orElse(format.default.map(cats.data.Xor.right))
             val validatedValue = possibleValue.getOrElse(cats.data.Xor.left[com.gu.scanamo.error.DynamoReadError, $tpe](com.gu.scanamo.error.MissingProperty))
             validatedValue.leftMap(e => com.gu.scanamo.error.InvalidPropertiesError(cats.data.NonEmptyList(com.gu.scanamo.error.PropertyReadError(${termName.toString}, e)))).toValidated
