@@ -61,11 +61,17 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
       (writer, reader, fresh, freshSuccesful)
     }
 
+    val reducedWriter = if(params.length != 1)
+      q"""List(..${params.map(_._3)}).reduce(_.product(_))"""
+    else
+      q"""${params.head._3}"""
+
     q"""
       new com.gu.scanamo.DynamoFormat[$A] {
         def read(av: com.amazonaws.services.dynamodbv2.model.AttributeValue): cats.data.Xor[com.gu.scanamo.error.DynamoReadError, $A] = {
           ..${params.map(_._2)}
-          List(..${params.map(_._3)}).reduce(_.product(_)).toXor.map(_ =>
+
+          ${reducedWriter}.toXor.map(_ =>
             ${apply.asMethod}(
               ..${params.map(_._4)}
             )
