@@ -11,11 +11,11 @@ type classes for Scrooge generated classes based on Thrift `struct` and `enum` t
 Installation
 ------------
 
+Add scanamo-scrooge as a dependency to your build.sbt:
 ```scala
 libraryDependencies ++= Seq(
   "com.gu" %% "scanamo-scrooge" % "0.1.2"
-)sbt
-
+)
 ```
 
 Usage
