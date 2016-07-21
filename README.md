@@ -13,7 +13,7 @@ Installation
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.gu" %% "scanamo-scrooge" % "0.1.1"
+  "com.gu" %% "scanamo-scrooge" % "0.1.2"
 )sbt
 
 ```
