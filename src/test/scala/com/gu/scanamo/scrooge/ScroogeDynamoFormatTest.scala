@@ -2,9 +2,10 @@ package com.gu.scanamo.scrooge
 
 import cats.data.Xor
 import com.amazonaws.services.dynamodbv2.model.AttributeValue
-import com.gu.contentatom.thrift.{ChangeRecord, User, Flags}
-import com.gu.contentatom.thrift.atom.media.AssetType
+import com.gu.contentatom.thrift.{ChangeRecord, User, Flags, AtomData}
+import com.gu.contentatom.thrift.atom.media.{MediaAtom, AssetType, Asset}
 import com.gu.scanamo.DynamoFormat
+import com.gu.scanamo.DynamoFormat._
 import com.gu.scanamo.error.TypeCoercionError
 import org.scalatest.{FunSuite, Matchers}
 
@@ -27,6 +28,14 @@ class ScroogeDynamoFormatTest extends FunSuite with Matchers {
     import ScroogeDynamoFormat._
     val flags = Flags(Some(true))
     DynamoFormat[Flags].read(DynamoFormat[Flags].write(flags)) should be(Xor.right(flags))
+  }
+
+  test("testScroogeScanamoUnionFormat") {
+    import ScroogeDynamoFormat._
+    // val fmt1 = DynamoFormat[Asset]
+    // val fmt2 = DynamoFormat[MediaAtom]
+    val atomData = AtomData.Media(MediaAtom(activeVersion = 1L, assets = List()))
+    val fmt = ScroogeDynamoFormat.scroogeScanamoUnionFormat[AtomData]
   }
 
 }
