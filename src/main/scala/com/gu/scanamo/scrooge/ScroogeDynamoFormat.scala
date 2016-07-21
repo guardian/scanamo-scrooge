@@ -1,13 +1,20 @@
 package com.gu.scanamo.scrooge
 
+import cats.data.Xor
 import com.gu.scanamo.DynamoFormat
 import com.twitter.scrooge.{ThriftEnum, ThriftStruct, ThriftUnion}
 
 import scala.language.experimental.macros
 
-object ScroogeDynamoFormat {
+object ScroogeDynamoFormat extends LowerPriorityImplicits {
+  implicit def seqFormat[T](implicit f: DynamoFormat[T]): DynamoFormat[Seq[T]] =
+    DynamoFormat.xmap[Seq[T], List[T]](l => Xor.right(l.toSeq))(_.toList)
+
   implicit def scroogeScanamoEnumFormat[T <: ThriftEnum]: DynamoFormat[T] = macro ScroogeDynamoFormatMacro.enumMacro[T]
-  def scroogeScanamoUnionFormat[T <: ThriftUnion]: DynamoFormat[T] = macro ScroogeDynamoFormatMacro.unionMacro[T]
+  implicit def scroogeScanamoUnionFormat[T <: ThriftUnion]: DynamoFormat[T] = macro ScroogeDynamoFormatMacro.unionMacro[T]
+}
+
+trait LowerPriorityImplicits {
   implicit def scroogeScanamoStructFormat[T <: ThriftStruct]: DynamoFormat[T] = macro ScroogeDynamoFormatMacro.structMacro[T]
 }
 
