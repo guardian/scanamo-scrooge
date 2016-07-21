@@ -30,10 +30,7 @@ class ScroogeDynamoFormatTest extends FunSuite with Matchers {
 
   test("testScroogeScanamoUnionFormat") {
     import ScroogeDynamoFormat._
-    // val fmt1 = DynamoFormat[Asset]
-    // val fmt2 = DynamoFormat[MediaAtom]
     val atomData = AtomData.Media(MediaAtom(activeVersion = 1L, assets = List()))
     val fmt = ScroogeDynamoFormat.scroogeScanamoUnionFormat[AtomData]
-  }
 
 }
