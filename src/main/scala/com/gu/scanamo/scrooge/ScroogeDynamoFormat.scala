@@ -33,23 +33,21 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
 
   def unionMacro[T: c.WeakTypeTag]: Tree = {
     val A = weakTypeOf[T]
-    val typeMembers = A.companion.members.filter { m => m.isType && !m.isPrivate }
-    val cases = typeMembers map { m =>
-      val typ = tq"${m.asType}"
+    val subClasses = A.typeSymbol.asClass.knownDirectSubclasses
+    val cases = subClasses map { cl =>
+      val typ = tq"${cl.asType}"
       val pat = pq"""x @ $typ"""
-      cq"""$pat => com.gu.scanamo.DynamoFormat[$m].write(x)"""
+      if(cl.name.toString == "UnknownUnionField")
+        cq"""_: $typ => Xor.left(com.gu.scanamo.error.TypeCoercionError(new IllegalArgumentException("unknown union field")))"""
+      else
+        cq"""$pat => com.gu.scanamo.DynamoFormat[$typ].write(x)"""
     }
-    val matcheeName = c.freshName(A.typeSymbol.name).toTermName
-    val matcher = q"""$matcheeName match {
-case ..${cases}
-}
-"""
     val res = q"""
-    new DynamoFormat[$A] {
-      def read(av: AttributeValue) = ???
-      def write($matcheeName: $A) = $matcher
-    }
-"""
+     new DynamoFormat[$A] {
+       def read(av: AttributeValue) = ???
+       def write(a: $A) = a match { case ..${cases} }
+     }
+     """
     println(showCode(res))
     res
   }
