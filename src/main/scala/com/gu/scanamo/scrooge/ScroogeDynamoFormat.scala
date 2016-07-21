@@ -7,8 +7,8 @@ import scala.language.experimental.macros
 
 object ScroogeDynamoFormat {
   implicit def scroogeScanamoEnumFormat[T <: ThriftEnum]: DynamoFormat[T] = macro ScroogeDynamoFormatMacro.enumMacro[T]
-  def scroogeScanamoUnionFormat[T <: ThriftUnion]: DynamoFormat[T] = macro ScroogeDynamoFormatMacro.unionMacro[T]
   implicit def scroogeScanamoStructFormat[T <: ThriftStruct]: DynamoFormat[T] = macro ScroogeDynamoFormatMacro.structMacro[T]
+  def scroogeScanamoUnionFormat[T <: ThriftUnion]: DynamoFormat[T] = macro ScroogeDynamoFormatMacro.unionMacro[T]
 }
 
 import scala.reflect.macros.blackbox
@@ -34,22 +34,31 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
   def unionMacro[T: c.WeakTypeTag]: Tree = {
     val A = weakTypeOf[T]
     val subClasses = A.typeSymbol.asClass.knownDirectSubclasses
+
     val cases = subClasses map { cl =>
-      val typ = tq"${cl.asType}"
-      val pat = pq"""x : $typ"""
+      val companionSym = cl.companion
+      val companionType = cl.asType.toType.companion
+
+      val memberType = companionType
+        .member(TermName("apply"))
+        .asMethod
+        .paramLists
+        .head
+        .head.typeSignature.dealias
+
+      val pat = pq"""$companionSym(data)"""
       if(cl.name.toString == "UnknownUnionField")
-        cq"""_: $typ => Xor.left(com.gu.scanamo.error.TypeCoercionError(new IllegalArgumentException("unknown union field")))"""
+        cq"""_: $cl => new AttributeValue().withS("Unknown union field")"""
       else
-        cq"""$pat => _root_.scala.Predef.implicitly[_root_.shapeless.Lazy[_root_.com.gu.scanamo.DynamoFormat[$typ]]].value.write(x)"""
+        cq"""$pat => _root_.scala.Predef.implicitly[_root_.shapeless.Lazy[_root_.com.gu.scanamo.DynamoFormat[$memberType]]].value.write(data)"""
     }
-    val res = q"""
+
+    q"""
      new DynamoFormat[$A] {
        def read(av: AttributeValue) = ???
        def write(a: $A) = a match { case ..${cases} }
      }
      """
-    println(showCode(res))
-    res
   }
 
   def structMacro[T: c.WeakTypeTag]: Tree = {

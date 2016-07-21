@@ -2,7 +2,7 @@ package com.gu.scanamo.scrooge
 
 import cats.data.Xor
 import com.amazonaws.services.dynamodbv2.model.AttributeValue
-import com.gu.contentatom.thrift.{ChangeRecord, User, Flags, AtomData}
+import com.gu.contentatom.thrift.{ChangeRecord, User, Flags, AtomData, AtomDataAliases}
 import com.gu.contentatom.thrift.atom.media.{MediaAtom, AssetType, Asset}
 import com.gu.scanamo.DynamoFormat
 import com.gu.scanamo.DynamoFormat._
@@ -32,7 +32,24 @@ class ScroogeDynamoFormatTest extends FunSuite with Matchers {
 
   test("testScroogeScanamoUnionFormat") {
     import ScroogeDynamoFormat._
-    val atomData = AtomData.Media(MediaAtom(activeVersion = 1L, assets = List()))
-    val fmt = ScroogeDynamoFormat.scroogeScanamoUnionFormat[AtomData]
 
+    val atomData = AtomData.Media(MediaAtom(activeVersion = 1L, assets = List()))
+
+    //val test = implicitly[DynamoFormat[com.gu.contentatom.thrift.atom.quiz.QuizAtom]]
+
+    implicit val fmt = ScroogeDynamoFormat.scroogeScanamoUnionFormat[AtomData]
+
+    //println(fmt.write(atomData))
+
+// import AtomData._
+//     val fmt = new DynamoFormat[com.gu.contentatom.thrift.AtomData] {
+//       def read(av: AttributeValue) = ???;
+//       def write(a: com.gu.contentatom.thrift.AtomData) = a match {
+//         case (x : Media) => com.gu.scanamo.DynamoFormat[Media].write(x)
+//         case (x : Quiz) => com.gu.scanamo.DynamoFormat[Quiz].write(x)
+//         case ((_): UnknownUnionField) => Xor.left(com.gu.scanamo.error.TypeCoercionError(new IllegalArgumentException("unknown union field")))
+//         case (x : Viewpoints) => com.gu.scanamo.DynamoFormat[Viewpoints].write(x)
+//       }
+//     }
+  }
 }
