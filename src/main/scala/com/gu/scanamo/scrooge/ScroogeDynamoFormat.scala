@@ -36,11 +36,11 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
     val subClasses = A.typeSymbol.asClass.knownDirectSubclasses
     val cases = subClasses map { cl =>
       val typ = tq"${cl.asType}"
-      val pat = pq"""x @ $typ"""
+      val pat = pq"""x : $typ"""
       if(cl.name.toString == "UnknownUnionField")
         cq"""_: $typ => Xor.left(com.gu.scanamo.error.TypeCoercionError(new IllegalArgumentException("unknown union field")))"""
       else
-        cq"""$pat => com.gu.scanamo.DynamoFormat[$typ].write(x)"""
+        cq"""$pat => _root_.scala.Predef.implicitly[_root_.shapeless.Lazy[_root_.com.gu.scanamo.DynamoFormat[$typ]]].value.write(x)"""
     }
     val res = q"""
      new DynamoFormat[$A] {
