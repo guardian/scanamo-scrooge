@@ -1,12 +1,13 @@
 package com.gu.scanamo.scrooge
 
 import com.gu.scanamo.DynamoFormat
-import com.twitter.scrooge.{ThriftEnum, ThriftStruct}
+import com.twitter.scrooge.{ThriftEnum, ThriftStruct, ThriftUnion}
 
 import scala.language.experimental.macros
 
 object ScroogeDynamoFormat {
   implicit def scroogeScanamoEnumFormat[T <: ThriftEnum]: DynamoFormat[T] = macro ScroogeDynamoFormatMacro.enumMacro[T]
+  def scroogeScanamoUnionFormat[T <: ThriftUnion]: DynamoFormat[T] = macro ScroogeDynamoFormatMacro.unionMacro[T]
   implicit def scroogeScanamoStructFormat[T <: ThriftStruct]: DynamoFormat[T] = macro ScroogeDynamoFormatMacro.structMacro[T]
 }
 
@@ -28,6 +29,29 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
         (x) => _root_.cats.data.Xor.fromOption($valueOf(x), com.gu.scanamo.error.TypeCoercionError(new IllegalArgumentException(x + " is not a valid " + $typeName))))(
         _.name)
     """
+  }
+
+  def unionMacro[T: c.WeakTypeTag]: Tree = {
+    val A = weakTypeOf[T]
+    val typeMembers = A.companion.members.filter { m => m.isType && !m.isPrivate }
+    val cases = typeMembers map { m =>
+      val typ = tq"${m.asType}"
+      val pat = pq"""x @ $typ"""
+      cq"""$pat => com.gu.scanamo.DynamoFormat[$m].write(x)"""
+    }
+    val matcheeName = c.freshName(A.typeSymbol.name).toTermName
+    val matcher = q"""$matcheeName match {
+case ..${cases}
+}
+"""
+    val res = q"""
+    new DynamoFormat[$A] {
+      def read(av: AttributeValue) = ???
+      def write($matcheeName: $A) = $matcher
+    }
+"""
+    println(showCode(res))
+    res
   }
 
   def structMacro[T: c.WeakTypeTag]: Tree = {
