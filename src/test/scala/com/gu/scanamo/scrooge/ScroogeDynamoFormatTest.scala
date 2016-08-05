@@ -2,6 +2,7 @@ package com.gu.scanamo.scrooge
 
 import cats.data.Xor
 import com.amazonaws.services.dynamodbv2.model.AttributeValue
+import com.gu.contentatom.thrift.AtomData._
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
 import com.gu.scanamo.DynamoFormat
@@ -24,9 +25,12 @@ class ScroogeDynamoFormatTest extends FunSuite with Matchers {
 
   test("testScroogeScanamoUnionFormat") {
     import ScroogeDynamoFormat._
+
     val atom = Atom("id", AtomType.Media, List("label"), "Html",
       AtomData.Media(MediaAtom(List(Asset(AssetType.Audio, 1L, "asset-id", Platform.Youtube)), 1L, None)),
       ContentChangeDetails(None, None, None, 1L), None)
-    DynamoFormat[Atom].read(DynamoFormat[Atom].write(atom)) should be(Xor.right(atom))
+    val av = DynamoFormat[Atom].write(atom)
+    println(av)
+    DynamoFormat[Atom].read(av) should be(Xor.right(atom))
   }
 }

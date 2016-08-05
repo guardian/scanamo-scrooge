@@ -5,7 +5,7 @@ scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-	"com.twitter" %% "scrooge-core" % "3.20.0",
+	"com.twitter" %% "scrooge-core" % "4.6.0",
 	"org.apache.thrift" % "libthrift" % "0.9.2",
   "com.gu" %% "scanamo" % "0.6.0",
   "org.typelevel" %% "macro-compat" % "1.1.1",
