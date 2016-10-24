@@ -15,6 +15,8 @@ libraryDependencies ++= Seq(
   "com.gu" %% "content-atom-model" % "1.0.1" % Test
 )
 
+scroogeThriftOutputFolder in Test := sourceManaged.value / "thrift"
+
 doctestMarkdownEnabled := true
 doctestDecodeHtmlEntities := true
 doctestWithDependencies := false
