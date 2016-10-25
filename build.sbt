@@ -7,13 +7,15 @@ libraryDependencies ++= Seq(
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
 	"com.twitter" %% "scrooge-core" % "3.20.0",
 	"org.apache.thrift" % "libthrift" % "0.9.2",
-  "com.gu" %% "scanamo" % "0.6.0",
+  "com.gu" %% "scanamo" % "0.7.0",
   "org.typelevel" %% "macro-compat" % "1.1.1",
   compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
   "org.scalatest" %% "scalatest" % "2.2.5" % Test,
   "org.scalacheck" %% "scalacheck" % "1.12.4" % Test,
-  "com.gu" %% "content-atom-model" % "1.0.1" % Test
+  "com.gu" %% "content-atom-model" % "2.4.6" % Test
 )
+
+scroogeThriftOutputFolder in Test := sourceManaged.value / "thrift"
 
 doctestMarkdownEnabled := true
 doctestDecodeHtmlEntities := true

@@ -61,7 +61,7 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
             val format = $formatWithFallback
             val possibleValue = collection.convert.WrapAsScala.mapAsScalaMap(av.getM).get(${termName.toString}).map(format.read).orElse(format.default.map(cats.data.Xor.right))
             val validatedValue = possibleValue.getOrElse(cats.data.Xor.left[com.gu.scanamo.error.DynamoReadError, $tpe](com.gu.scanamo.error.MissingProperty))
-            validatedValue.leftMap(e => com.gu.scanamo.error.InvalidPropertiesError(cats.data.NonEmptyList(com.gu.scanamo.error.PropertyReadError(${termName.toString}, e)))).toValidated
+            validatedValue.leftMap(e => com.gu.scanamo.error.InvalidPropertiesError(cats.data.NonEmptyList.of(com.gu.scanamo.error.PropertyReadError(${termName.toString}, e)))).toValidated
           }
           """
       val writer = q"""${termName.toString} -> _root_.scala.Predef.implicitly[_root_.shapeless.Lazy[_root_.com.gu.scanamo.DynamoFormat[$tpe]]].value.write(t.$termName)"""
@@ -70,7 +70,7 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
     }
 
     val reducedWriter = if(params.length != 1)
-      q"""List(..${params.map(_._3)}).reduce(_.product(_))"""
+      q"""List[cats.data.Validated[com.gu.scanamo.error.InvalidPropertiesError, Any]](..${params.map(_._3)}).reduce(_.product(_))"""
     else
       q"""${params.head._3}"""
 

@@ -3,11 +3,15 @@ package com.gu.scanamo.scrooge
 import cats.data.Xor
 import com.amazonaws.services.dynamodbv2.model.AttributeValue
 import com.gu.contentatom.thrift.{ChangeRecord, User, Flags}
-import com.gu.contentatom.thrift.atom.media.AssetType
+import com.gu.contentatom.thrift.atom.media.{ Metadata, AssetType }
 import com.gu.scanamo.DynamoFormat
 import org.scalatest.{FunSuite, Matchers}
 
 class ScroogeDynamoFormatTest extends FunSuite with Matchers {
+
+  def roundTrip[A : DynamoFormat](a: A) = {
+    DynamoFormat[A].read(DynamoFormat[A].write(a)) should be(Xor.right(a))
+  }
 
   test("testScroogeScanamoEnumFormat") {
     val format = ScroogeDynamoFormat.scroogeScanamoEnumFormat[AssetType]
@@ -18,14 +22,17 @@ class ScroogeDynamoFormatTest extends FunSuite with Matchers {
 
   test("testScroogeScanamoStructFormat") {
     import ScroogeDynamoFormat._
-    val changeRecord = ChangeRecord(1L, Some(User("email", Some("f"), None)))
-    DynamoFormat[ChangeRecord].read(DynamoFormat[ChangeRecord].write(changeRecord)) should be(Xor.right(changeRecord))
+    roundTrip(ChangeRecord(1L, Some(User("email", Some("f"), None))))
   }
 
   test("testScroogeScanamoStructFormat for struct with one member") {
     import ScroogeDynamoFormat._
-    val flags = Flags(Some(true))
-    DynamoFormat[Flags].read(DynamoFormat[Flags].write(flags)) should be(Xor.right(flags))
+    roundTrip(Flags(Some(true)))
+  }
+
+  test("testScroogeScanamoStructFormat for struct with all optional members") {
+    import ScroogeDynamoFormat._
+    roundTrip[Metadata](Metadata())
   }
 
 }
