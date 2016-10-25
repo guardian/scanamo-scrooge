@@ -70,7 +70,7 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
     }
 
     val reducedWriter = if(params.length != 1)
-      q"""List(..${params.map(_._3)}).reduce(_.product(_))"""
+      q"""List[cats.data.Validated[com.gu.scanamo.error.InvalidPropertiesError, Any]](..${params.map(_._3)}).reduce(_.product(_))"""
     else
       q"""${params.head._3}"""
 
