@@ -41,5 +41,5 @@ scala> DynamoFormat[ChangeRecord].write(changeRecord)
 res0: com.amazonaws.services.dynamodbv2.model.AttributeValue = {M: {date={N: 1,}, user={M: {email={S: email,}, firstName={S: f,}, lastName=null},}},}
 
 scala> DynamoFormat[ChangeRecord].read(DynamoFormat[ChangeRecord].write(changeRecord))
-res1: cats.data.Xor[error.DynamoReadError, ChangeRecord] = Right(ChangeRecord(1,Some(User(email,Some(f),None))))
+res1: Either[error.DynamoReadError, ChangeRecord] = Right(ChangeRecord(1,Some(User(email,Some(f),None))))
 ```
