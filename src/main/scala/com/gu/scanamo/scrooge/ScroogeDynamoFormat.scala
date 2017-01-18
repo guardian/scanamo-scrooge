@@ -25,7 +25,7 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
 
     q"""
       com.gu.scanamo.DynamoFormat.xmap[$A, String](
-        (x) => _root_.cats.data.Xor.fromOption($valueOf(x), com.gu.scanamo.error.TypeCoercionError(new IllegalArgumentException(x + " is not a valid " + $typeName))))(
+        (x) => $valueOf(x).toRight[com.gu.scanamo.error.DynamoReadError](com.gu.scanamo.error.TypeCoercionError(new IllegalArgumentException(x + " is not a valid " + $typeName))))(
         _.name)
     """
   }
@@ -59,9 +59,13 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
         q"""
           val $fresh: cats.data.Validated[com.gu.scanamo.error.InvalidPropertiesError, $tpe] = {
             val format = $formatWithFallback
-            val possibleValue = collection.convert.WrapAsScala.mapAsScalaMap(av.getM).get(${termName.toString}).map(format.read).orElse(format.default.map(cats.data.Xor.right))
-            val validatedValue = possibleValue.getOrElse(cats.data.Xor.left[com.gu.scanamo.error.DynamoReadError, $tpe](com.gu.scanamo.error.MissingProperty))
-            validatedValue.leftMap(e => com.gu.scanamo.error.InvalidPropertiesError(cats.data.NonEmptyList.of(com.gu.scanamo.error.PropertyReadError(${termName.toString}, e)))).toValidated
+            val possibleValue: Option[Either[com.gu.scanamo.error.DynamoReadError, $tpe]] = collection.convert.WrapAsScala.mapAsScalaMap(av.getM).get(${termName.toString})
+              .map[Either[com.gu.scanamo.error.DynamoReadError, $tpe]](format.read)
+              .orElse[Either[com.gu.scanamo.error.DynamoReadError, $tpe]](
+                format.default.map[Either[com.gu.scanamo.error.DynamoReadError, $tpe]](Right(_))
+              )
+            val validatedValue: Either[com.gu.scanamo.error.DynamoReadError, $tpe] = possibleValue.getOrElse(Left[com.gu.scanamo.error.DynamoReadError, $tpe](com.gu.scanamo.error.MissingProperty))
+            cats.data.Validated.fromEither(validatedValue.left.map(e => com.gu.scanamo.error.InvalidPropertiesError(cats.data.NonEmptyList.of(com.gu.scanamo.error.PropertyReadError(${termName.toString}, e)))))
           }
           """
       val writer = q"""${termName.toString} -> _root_.scala.Predef.implicitly[_root_.shapeless.Lazy[_root_.com.gu.scanamo.DynamoFormat[$tpe]]].value.write(t.$termName)"""
@@ -76,10 +80,10 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
 
     q"""
       new com.gu.scanamo.DynamoFormat[$A] {
-        def read(av: com.amazonaws.services.dynamodbv2.model.AttributeValue): cats.data.Xor[com.gu.scanamo.error.DynamoReadError, $A] = {
+        def read(av: com.amazonaws.services.dynamodbv2.model.AttributeValue): Either[com.gu.scanamo.error.DynamoReadError, $A] = {
           ..${params.map(_._2)}
 
-          ${reducedWriter}.toXor.map(_ =>
+          ${reducedWriter}.toEither.map(_ =>
             ${apply.asMethod}(
               ..${params.map(_._4)}
             )
