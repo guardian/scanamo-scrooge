@@ -5,7 +5,7 @@ Like [Scanamo](https://github.com/guardian/scanamo) for interacting with DynamoD
 [Scrooge](https://github.com/twitter/scrooge) for working with [Thrift](https://thrift.apache.org/)?
 Then you'll love ScanamoScrooge!
 
-ScanamoScrooge provides automatic derivation of [DynamoFormat](https://guardian.github.io/scanamo/latest/api/#com.gu.scanamo.DynamoFormat)
+ScanamoScrooge provides automatic derivation of [DynamoFormat](https://guardian.github.io/scanamo/latest/api/#org.scanamo.DynamoFormat)
 type classes for Scrooge generated classes based on Thrift `struct` and `enum` types.
 
 Installation
@@ -14,7 +14,7 @@ Installation
 Add scanamo-scrooge as a dependency to your build.sbt:
 ```scala
 libraryDependencies ++= Seq(
-  "com.gu" %% "scanamo-scrooge" % "0.1.3"
+  "org" %% "scanamo-scrooge" % "0.1.3"
 )
 ```
 
@@ -24,7 +24,7 @@ Usage
 To bring `DynamoFormat`s for Scrooge generated classes into scope, simply
 
 ```scala
-import com.gu.scanamo.scrooge.ScroogeDynamoFormat._
+import org.scanamo.scrooge.ScroogeDynamoFormat._
 ```
 
 While, there is normally no need to explicitly reference `DynamoFormat`, the following
@@ -32,14 +32,14 @@ While, there is normally no need to explicitly reference `DynamoFormat`, the fol
  thrift definition.
 
 ```scala
-scala> import com.gu.scanamo._
-scala> import com.gu.scanamo.scrooge.ScroogeDynamoFormat._
+scala> import org.scanamo._
+scala> import org.scanamo.scrooge.ScroogeDynamoFormat._
 scala> import com.gu.contentatom.thrift._
 scala> import cats.syntax.either._
 
 scala> val changeRecord = ChangeRecord(1L, Some(User("email", Some("f"), None)))
 scala> DynamoFormat[ChangeRecord].write(changeRecord)
-res0: com.amazonaws.services.dynamodbv2.model.AttributeValue = {M: {date={N: 1,}, user={M: {email={S: email,}, firstName={S: f,}, lastName=null},}},}
+res0: com.amazonaws.services.dynamodbv2.model.AttributeValue = {M: {date={N: 1,}, user={M: {email={S: email,}, firstName={S: f,}, lastName={NULL: true,}},}},}
 
 scala> DynamoFormat[ChangeRecord].read(DynamoFormat[ChangeRecord].write(changeRecord))
 res1: Either[error.DynamoReadError, ChangeRecord] = Right(ChangeRecord(1,Some(User(email,Some(f),None))))

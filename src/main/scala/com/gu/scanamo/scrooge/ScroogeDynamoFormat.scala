@@ -1,6 +1,6 @@
-package com.gu.scanamo.scrooge
+package org.scanamo.scrooge
 
-import com.gu.scanamo.DynamoFormat
+import org.scanamo.DynamoFormat
 import com.twitter.scrooge.{ThriftEnum, ThriftStruct}
 
 import scala.language.experimental.macros
@@ -24,8 +24,8 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
     val valueOf = A.companion.member(TermName("valueOf"))
 
     q"""
-      com.gu.scanamo.DynamoFormat.xmap[$A, String](
-        (x) => $valueOf(x).toRight[com.gu.scanamo.error.DynamoReadError](com.gu.scanamo.error.TypeCoercionError(new IllegalArgumentException(x + " is not a valid " + $typeName))))(
+      org.scanamo.DynamoFormat.xmap[$A, String](
+        (x) => $valueOf(x).toRight[org.scanamo.error.DynamoReadError](org.scanamo.error.TypeCoercionError(new IllegalArgumentException(x + " is not a valid " + $typeName))))(
         _.name)
     """
   }
@@ -52,35 +52,35 @@ class ScroogeDynamoFormatMacro(val c: blackbox.Context) {
         // Note the use of shapeless `Lazy` to work around a problem with diverging implicits.
         // If you try to summon an implicit for heavily nested type, e.g. `DynamoFormat[Option[List[String]]]` then the compiler sometimes gives up.
         // Wrapping with `Lazy` fixes this issue.
-        q"""_root_.scala.Predef.implicitly[_root_.shapeless.Lazy[_root_.com.gu.scanamo.DynamoFormat[$tpe]]].value"""
+        q"""_root_.scala.Predef.implicitly[_root_.shapeless.Lazy[_root_.org.scanamo.DynamoFormat[$tpe]]].value"""
       }
 
       val reader =
         q"""
-          val $fresh: cats.data.Validated[com.gu.scanamo.error.InvalidPropertiesError, $tpe] = {
+          val $fresh: cats.data.Validated[org.scanamo.error.InvalidPropertiesError, $tpe] = {
             val format = $formatWithFallback
-            val possibleValue: Option[Either[com.gu.scanamo.error.DynamoReadError, $tpe]] = collection.convert.WrapAsScala.mapAsScalaMap(av.getM).get(${termName.toString})
-              .map[Either[com.gu.scanamo.error.DynamoReadError, $tpe]](format.read)
-              .orElse[Either[com.gu.scanamo.error.DynamoReadError, $tpe]](
-                format.default.map[Either[com.gu.scanamo.error.DynamoReadError, $tpe]](Right(_))
+            val possibleValue: Option[Either[org.scanamo.error.DynamoReadError, $tpe]] = collection.convert.WrapAsScala.mapAsScalaMap(av.getM).get(${termName.toString})
+              .map[Either[org.scanamo.error.DynamoReadError, $tpe]](format.read)
+              .orElse[Either[org.scanamo.error.DynamoReadError, $tpe]](
+                format.default.map[Either[org.scanamo.error.DynamoReadError, $tpe]](Right(_))
               )
-            val validatedValue: Either[com.gu.scanamo.error.DynamoReadError, $tpe] = possibleValue.getOrElse(Left[com.gu.scanamo.error.DynamoReadError, $tpe](com.gu.scanamo.error.MissingProperty))
-            cats.data.Validated.fromEither(validatedValue.left.map(e => com.gu.scanamo.error.InvalidPropertiesError(cats.data.NonEmptyList.of(com.gu.scanamo.error.PropertyReadError(${termName.toString}, e)))))
+            val validatedValue: Either[org.scanamo.error.DynamoReadError, $tpe] = possibleValue.getOrElse(Left[org.scanamo.error.DynamoReadError, $tpe](org.scanamo.error.MissingProperty))
+            cats.data.Validated.fromEither(validatedValue.left.map(e => org.scanamo.error.InvalidPropertiesError(cats.data.NonEmptyList.of(org.scanamo.error.PropertyReadError(${termName.toString}, e)))))
           }
           """
-      val writer = q"""${termName.toString} -> _root_.scala.Predef.implicitly[_root_.shapeless.Lazy[_root_.com.gu.scanamo.DynamoFormat[$tpe]]].value.write(t.$termName)"""
+      val writer = q"""${termName.toString} -> _root_.scala.Predef.implicitly[_root_.shapeless.Lazy[_root_.org.scanamo.DynamoFormat[$tpe]]].value.write(t.$termName)"""
       val freshSuccesful = q"""$fresh.toOption.get"""
       (writer, reader, fresh, freshSuccesful)
     }
 
     val reducedWriter = if(params.length != 1)
-      q"""List[cats.data.Validated[com.gu.scanamo.error.InvalidPropertiesError, Any]](..${params.map(_._3)}).reduce(_.product(_))"""
+      q"""List[cats.data.Validated[org.scanamo.error.InvalidPropertiesError, Any]](..${params.map(_._3)}).reduce(_.product(_))"""
     else
       q"""${params.head._3}"""
 
     q"""
-      new com.gu.scanamo.DynamoFormat[$A] {
-        def read(av: com.amazonaws.services.dynamodbv2.model.AttributeValue): Either[com.gu.scanamo.error.DynamoReadError, $A] = {
+      new org.scanamo.DynamoFormat[$A] {
+        def read(av: com.amazonaws.services.dynamodbv2.model.AttributeValue): Either[org.scanamo.error.DynamoReadError, $A] = {
           ..${params.map(_._2)}
 
           ${reducedWriter}.toEither.map(_ =>

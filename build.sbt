@@ -7,7 +7,7 @@ libraryDependencies ++= Seq(
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
 	"com.twitter" %% "scrooge-core" % "19.3.0",
 	"org.apache.thrift" % "libthrift" % "0.10.0",
-  "com.gu" %% "scanamo" % "0.9.0",
+  "org.scanamo" % "scanamo_2.11" % "1.0.0-M9",
   "org.typelevel" %% "macro-compat" % "1.1.1",
   compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
   "org.scalatest" %% "scalatest" % "2.2.5" % Test,

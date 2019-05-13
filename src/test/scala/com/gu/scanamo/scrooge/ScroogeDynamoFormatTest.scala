@@ -1,9 +1,9 @@
-package com.gu.scanamo.scrooge
+package org.scanamo.scrooge
 
 import com.amazonaws.services.dynamodbv2.model.AttributeValue
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
-import com.gu.scanamo.DynamoFormat
+import org.scanamo.DynamoFormat
 import org.scalatest.{FunSuite, Matchers}
 import cats.syntax.either._
 
