@@ -1,6 +1,6 @@
 addSbtPlugin("com.twitter" %% "scrooge-sbt-plugin" % "19.3.0")
 
-addSbtPlugin("com.localytics" % "sbt-dynamodb" % "1.4.0")
+addSbtPlugin("com.localytics" % "sbt-dynamodb" % "1.5.5")
 
 addSbtPlugin("com.github.tkawachi" % "sbt-doctest" % "0.4.0")
 
