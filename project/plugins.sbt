@@ -1,19 +1,19 @@
 addSbtPlugin("com.twitter" %% "scrooge-sbt-plugin" % "19.3.0")
 
-addSbtPlugin("com.localytics" % "sbt-dynamodb" % "1.5.5")
+addSbtPlugin("com.localytics" % "sbt-dynamodb" % "2.0.3")
 
-addSbtPlugin("com.github.tkawachi" % "sbt-doctest" % "0.4.0")
+addSbtPlugin("com.github.tkawachi" % "sbt-doctest" % "0.10.0")
 
-resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
-addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.5.4")
-addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "0.8.2")
+resolvers += "jgit-repo" at "https://download.eclipse.org/jgit/maven"
 
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.0")
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "0.5.0")
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.0.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.3")
+addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.4.1")
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
-addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.1.0")
+addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.9.13")
+addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.1.2")
 
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.8.2")
+addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.3.2")
+
 

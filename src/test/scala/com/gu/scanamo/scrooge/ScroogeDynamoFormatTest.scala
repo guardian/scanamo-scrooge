@@ -1,12 +1,12 @@
 package org.scanamo.scrooge
 
+import com.amazonaws.services.dynamodbv2.model.AttributeValue
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
 import org.scanamo.DynamoFormat
 import cats.syntax.either._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 
 class ScroogeDynamoFormatTest extends AnyFunSuite with Matchers {
 
@@ -18,7 +18,7 @@ class ScroogeDynamoFormatTest extends AnyFunSuite with Matchers {
     val format = ScroogeDynamoFormat.scroogeScanamoEnumFormat[AssetType]
     format.read(format.write(AssetType.Audio)) should be(Right(AssetType.Audio))
     format.read(format.write(AssetType.Video)) should be(Right(AssetType.Video))
-    format.read(AttributeValue.builder().s("Spleurk").build()).isLeft should be(true)
+    format.read(new AttributeValue().withS("Spleurk")).isLeft should be(true)
   }
 
   test("testScroogeScanamoStructFormat Media Atom") {
