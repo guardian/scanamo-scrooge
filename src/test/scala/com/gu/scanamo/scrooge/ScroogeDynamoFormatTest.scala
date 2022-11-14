@@ -4,10 +4,11 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue
 import com.gu.contentatom.thrift._
 import com.gu.contentatom.thrift.atom.media._
 import org.scanamo.DynamoFormat
-import org.scalatest.{FunSuite, Matchers}
 import cats.syntax.either._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class ScroogeDynamoFormatTest extends FunSuite with Matchers {
+class ScroogeDynamoFormatTest extends AnyFunSuite with Matchers {
 
   def roundTrip[A : DynamoFormat](a: A) = {
     DynamoFormat[A].read(DynamoFormat[A].write(a)) should be(Right(a))
